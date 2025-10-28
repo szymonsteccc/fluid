@@ -13,10 +13,16 @@
 
 static const int RADIUS = 10;
 static const int CIRCLE_SEGMENTS = 32;
-static const int SIMULATION_DELAY = 200;
-static const float GRAVITY = 0.1f; // SDL_STANDARD_GRAVITY
-static const int PARTICLE_COUNT = 50;
+// static const int SIMULATION_DELAY = 200;
+static const float GRAVITY = SDL_STANDARD_GRAVITY; // SDL_STANDARD_GRAVITY
+static const int PARTICLE_COUNT = 200;
 static const float COLLISION_DAMPING = 0.8f;
+static const float SMOOTHING_RADIUS = RADIUS * 5.0f;
+static const float PARTICLE_MASS = 1;
+static const float TARGET_DENSITY = 1.e-6f;
+static const float PRESSURE_COEFFICIENT = 1000.0f;
+// static const float DENSITY_EPSILON = 1e-6f;
+
 
 static const int CIRCLE_BOUNDARY_X = WINDOW_WIDTH - RADIUS;
 static const int CIRCLE_BOUNDARY_Y = WINDOW_HEIGHT - RADIUS;
@@ -30,23 +36,20 @@ typedef struct {
 typedef struct {
     Vector2 position;
     Vector2 velocity;
-    // float mass;
+    float density;
 } Particle;
 
-// typedef struct {
-//     uint64_t now;
-//     uint64_t last;
-// } Time;
 
 static const Vector2 VECTOR2_UP    = { 0.0f, -1.0f };
 static const Vector2 VECTOR2_DOWN  = { 0.0f,  1.0f };
 static const Vector2 VECTOR2_LEFT  = { -1.0f, 0.0f };
 static const Vector2 VECTOR2_RIGHT = {  1.0f, 0.0f };
-static const Vector2 VECTOR2_ONE  = { 1.0f,  1.0f };
-// static const Vector2 GRAVITY_VECTOR = { 0.0f, GRAVITY };
+static const Vector2 VECTOR2_ONE   = { 1.0f,  1.0f };
+static const Vector2 VECTOR2_ZERO   = { 0.0f,  0.0f };
+
 
 extern Particle *particles;
-// extern size_t particle_count;
+
 
 void init_particles();
 

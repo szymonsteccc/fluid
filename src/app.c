@@ -74,7 +74,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     // float cetterY = (float)WINDOW_HEIGHT / 2;
 
     // draw_circle(renderer, centerX, cetterY, color);
+    // printf("elapsed: %f\n", elapsed);
     update_simulation(renderer, elapsed);
+
+    last_time = now;
 
     SDL_RenderPresent(renderer);
     // SDL_Delay(SIMULATION_DELAY);

@@ -6,7 +6,6 @@ set(CMAKE_C_STANDARD 11)
 set(SOURCES
   src/simulation.c
   src/app.c
-  # src/fluid.c
 )
 add_executable(fluid ${SOURCES})
 
