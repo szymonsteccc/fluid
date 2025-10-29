@@ -1,3 +1,3 @@
 # fluid
 
-Fluid particle simulation with OpenGL
+[in progress] Fluid particle simulation with OpenGL
