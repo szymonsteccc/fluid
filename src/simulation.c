@@ -27,6 +27,14 @@ float CalculateDistance(Particle a, Particle b) {
     return (float)sqrtf(dx * dx + dy * dy);
 }
 
+float CalculateDistanceMouse(Particle a, float mouse_x, float mouse_y) {
+    // printf("asdasd: %f\n", b.position.x);
+    float dx = mouse_x - (float)a.position.x;
+    float dy = mouse_y - (float)a.position.y;
+    // printf("lol : %f\n", (float)sqrtf(dx * dx + dy * dy));
+    return (float)sqrtf(dx * dx + dy * dy);
+}
+
 // not used .))
 bool circles_intersect(Particle a, Particle b) {
     float distance = CalculateDistance(a, b);
@@ -212,7 +220,7 @@ float CalculateSharedPressure(float density_A, float density_B) {
 }
 
 Vector2 CalculatePressureForce(int particle_index) {
-    Vector2 preassure_force = VECTOR2_ZERO;
+    Vector2 pressure_force = VECTOR2_ZERO;
 
     // TODO check not every particle, just those around
     for (int i = 0; i < PARTICLE_COUNT; i++) {
@@ -231,23 +239,80 @@ Vector2 CalculatePressureForce(int particle_index) {
 
         float shared_pressure = CalculateSharedPressure(particles[particle_index].density, particles[i].density);
 
-        preassure_force.x += shared_pressure * dir.x * slope * PARTICLE_MASS / particles[i].density;
-        preassure_force.y += shared_pressure * dir.y * slope * PARTICLE_MASS / particles[i].density;
+        pressure_force.x += shared_pressure * dir.x * slope * PARTICLE_MASS / particles[i].density;
+        pressure_force.y += shared_pressure * dir.y * slope * PARTICLE_MASS / particles[i].density;
     }
 
-    return preassure_force;
+    // Vector2 mouse_cord;
+    // SDL_GetGlobalMouseState(&mouse_cord.x, &mouse_cord.y);
+    // float distance = CalculateDistanceMouse(particles[particle_index], mouse_cord.x, mouse_cord.y);
+
+    // Vector2 dir = {
+    //     (particles[particle_index].position.x - mouse_cord.x) / distance,
+    //     (particles[particle_index].position.y - mouse_cord.y) / distance
+    // };
+
+    // float slope = SmoothingFunctionDerivative(distance);
+    // float pressure = convert_density_to_pressure(distance);
+
+    // pressure_force.x += pressure * dir.x * slope * PARTICLE_MASS / particles[particle_index].density;
+    // pressure_force.y += pressure * dir.y * slope * PARTICLE_MASS / particles[particle_index].density;
+
+
+    return pressure_force;
 }
 
-void update_simulation(SDL_Renderer *renderer, float time_delta) {
+Vector2 CalculatePressureForceMouse(int particle_index) {
+    Vector2 pressure_force_mouse = VECTOR2_ZERO;
+
+    Vector2 mouse_cord;
+    int window_X = 0, window_Y = 0;
+    // printf("%d, %d\n", window_X, window_Y);
+
+    SDL_GetGlobalMouseState(&mouse_cord.x, &mouse_cord.y);
+    // SDL_GetWindowPosition(window, &window_X, &window_Y);
+    // printf("%d, %d\n"m, lastX, lastY);
+    mouse_cord.x += window_X;
+    mouse_cord.y += window_Y;
+    // printf("coord%f, %f\n", mouse_cord.x, mouse_cord.y);
+
+    // printf("Mouse on screen: (%f, %f)\n", mouse_cord.x, mouse_cord.y);
+
+    float distance = CalculateDistanceMouse(particles[particle_index], mouse_cord.x, mouse_cord.y);
+
+    Vector2 dir = {
+        (mouse_cord.x - particles[particle_index].position.x) / distance,
+        (mouse_cord.y - particles[particle_index].position.y) / distance
+    };
+    // printf("%f\n", (particles[particle_index].position.x - mouse_cord.x) / distance);
+
+
+    float slope = SmoothingFunctionDerivative(distance);
+
+    // float shared_pressure = CalculateSharedPressure(particles[particle_index].density, particles[i].density);
+    float pressure = convert_density_to_pressure(distance);
+
+    // printf("PRZED: %f\n", pressure_force_mouse.x);
+
+    pressure_force_mouse.x += pressure * dir.x * slope * PARTICLE_MASS / 1.0f;
+    pressure_force_mouse.y += pressure * dir.y * slope * PARTICLE_MASS / 1.0f;
+    // printf("ALL:  : %f: %f: %f: %f: %f\n", pressure, dir.y, slope , PARTICLE_MASS, particles[particle_index].density);
+
+    // printf("PO   : %f\n", pressure_force_mouse.x);
+
+
+    return pressure_force_mouse;
+}
+
+void update_simulation(SDL_Renderer *renderer, float time_delta, float dx, float dy) {
     SDL_Color color = {255, 0, 0, 255};
 
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-        print_particle(&particles[i]);
-
-        // particles[i].velocity.x += VECTOR2_DOWN.x * GRAVITY * time_delta;
-        // particles[i].velocity.y += VECTOR2_DOWN.y * GRAVITY * time_delta;
+        particles[i].velocity.x += VECTOR2_DOWN.x * GRAVITY * time_delta;
+        particles[i].velocity.y += VECTOR2_DOWN.y * GRAVITY * time_delta;
 
         CalculateParticleDensity(i);
+        CalculatePressureForceMouse(i);
     }
 
     for (int i = 0; i < PARTICLE_COUNT; i++) {
@@ -257,10 +322,18 @@ void update_simulation(SDL_Renderer *renderer, float time_delta) {
             pressure_force.x / particles[i].density,
             pressure_force.y / particles[i].density,
         };
+        particles[i].velocity.x = pressure_acceleration.x * time_delta;
+        particles[i].velocity.y = pressure_acceleration.y * time_delta;
 
-        // dodajemy przyrost prędkości zamiast nadpisywać (zachowujemy grawitację itp.)
-        particles[i].velocity.x += pressure_acceleration.x * time_delta;
-        particles[i].velocity.y += pressure_acceleration.y * time_delta;
+        Vector2 pressure_force_mouse = CalculatePressureForceMouse(i);
+        Vector2 pressure_acceleration_mouse = {
+            pressure_force_mouse.x / particles[i].density,
+            pressure_force_mouse.y / particles[i].density,
+        };
+        particles[i].velocity.x += pressure_acceleration_mouse.x * time_delta;
+        particles[i].velocity.y += pressure_acceleration_mouse.y * time_delta;
+
+
     }
 
     for (int i = 0; i < PARTICLE_COUNT; i++) {
@@ -269,5 +342,6 @@ void update_simulation(SDL_Renderer *renderer, float time_delta) {
         resolve_colisions(&particles[i]);
         draw_circle(renderer, particles[i].position.x, particles[i].position.y, color);
     }
+
 
 }

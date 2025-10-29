@@ -20,9 +20,9 @@ static const float COLLISION_DAMPING = 0.8f;
 static const float SMOOTHING_RADIUS = RADIUS * 5.0f;
 static const float PARTICLE_MASS = 1;
 static const float TARGET_DENSITY = 1.e-6f;
-static const float PRESSURE_COEFFICIENT = 1000.0f;
-// static const float DENSITY_EPSILON = 1e-6f;
+static const float PRESSURE_COEFFICIENT = 100000.0f;
 
+// static const float INERTIA_SCALE = 10.0f;
 
 static const int CIRCLE_BOUNDARY_X = WINDOW_WIDTH - RADIUS;
 static const int CIRCLE_BOUNDARY_Y = WINDOW_HEIGHT - RADIUS;
@@ -37,6 +37,7 @@ typedef struct {
     Vector2 position;
     Vector2 velocity;
     float density;
+    // Vector2 inertia;
 } Particle;
 
 
@@ -57,7 +58,8 @@ Particle random_particle();
 bool particle_is_used(Particle p);
 bool circles_intersect(Particle a, Particle b);
 
-void update_simulation(SDL_Renderer *renderer, float time_delta);
+void applyInertia(float dx, float dy);
+void update_simulation(SDL_Renderer *renderer, float time_delta, float dx, float dy);
 void update(Particle *p, float time_delta);
 void draw_circle(SDL_Renderer *renderer, float centerX, float centerY, SDL_Color color);
 

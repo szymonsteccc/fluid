@@ -13,9 +13,13 @@ static SDL_Renderer *renderer = NULL;
 #include <stdlib.h>
 
 static Uint64 last_time = 0;
+static float dx = 0;
+static float dy = 0;
+int lastX, lastY;
+
 
 // void init_particles(void);
-void update_simulation(SDL_Renderer *renderer, float dt);
+void update_simulation(SDL_Renderer *renderer, float dt, float dx, float dy);
 
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -32,10 +36,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
     SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED+100);
 
     srand(rand());
     init_particles();
+
+    SDL_GetWindowPosition(window, &lastX, &lastY);
+    // printf("x:%d, y:%d\n", lastX, lastY);
 
     return SDL_APP_CONTINUE;
 }
@@ -53,10 +60,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             SDL_Log("Escape pressed, quitting...");
             return SDL_APP_SUCCESS;
         }
-
-        //here
-
     }
+
+    
+
+    
 
     return SDL_APP_CONTINUE;
 }
@@ -75,7 +83,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     // draw_circle(renderer, centerX, cetterY, color);
     // printf("elapsed: %f\n", elapsed);
-    update_simulation(renderer, elapsed);
+    update_simulation(renderer, elapsed, dx, dy);
 
     last_time = now;
 

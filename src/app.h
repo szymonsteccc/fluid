@@ -7,6 +7,12 @@
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 
+extern int lastX, lastY;
+extern float mouseX, mouseY;
+
+static float dx;
+static float dy;
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]);
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event);
 SDL_AppResult SDL_AppIterate(void *appstate);
