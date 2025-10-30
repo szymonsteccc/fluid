@@ -15,9 +15,9 @@ static const int RADIUS = 10;
 static const int CIRCLE_SEGMENTS = 32;
 // static const int SIMULATION_DELAY = 200;
 static const float GRAVITY = SDL_STANDARD_GRAVITY; // SDL_STANDARD_GRAVITY
-static const int PARTICLE_COUNT = 200;
+static const int PARTICLE_COUNT = 300;
 static const float COLLISION_DAMPING = 0.8f;
-static const float SMOOTHING_RADIUS = RADIUS * 5.0f;
+static const float SMOOTHING_RADIUS = RADIUS * 6.0f;
 static const float PARTICLE_MASS = 1;
 static const float TARGET_DENSITY = 1.e-6f;
 static const float PRESSURE_COEFFICIENT = 100000.0f;
@@ -54,13 +54,13 @@ extern Particle *particles;
 
 void init_particles();
 
-Particle random_particle();
-bool particle_is_used(Particle p);
-bool circles_intersect(Particle a, Particle b);
+// Particle random_particle();
+// bool particle_is_used(Particle p);
+// bool circles_intersect(Particle a, Particle b);
 
-void applyInertia(float dx, float dy);
+// void applyInertia(float dx, float dy);
 void update_simulation(SDL_Renderer *renderer, float time_delta, float dx, float dy);
-void update(Particle *p, float time_delta);
-void draw_circle(SDL_Renderer *renderer, float centerX, float centerY, SDL_Color color);
+// void update(Particle *p, float time_delta);
+// void draw_circle(SDL_Renderer *renderer, float centerX, float centerY, SDL_Color color);
 
 #endif
